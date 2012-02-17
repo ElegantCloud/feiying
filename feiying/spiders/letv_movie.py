@@ -1,3 +1,4 @@
+# coding=utf8
 # letv_movie.py
 
 from scrapy.http import Request

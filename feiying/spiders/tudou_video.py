@@ -1,3 +1,4 @@
+# coding=utf8
 # tudou_video.py
 
 from scrapy.http import Request
