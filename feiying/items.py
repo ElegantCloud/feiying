@@ -14,7 +14,7 @@ class FeiyingItem(Item):
     image_url = Field()
     category = Field()
 
-class FyFormalVideoItem():
+class FyFormalVideoItem(Item):
     director = Field()
     actor = Field()
     release_date = Field()
@@ -26,10 +26,19 @@ class FyVideoItem(FeiyingItem):
     size = Field()
     video_url = Field()
 
-class FyMovieItem(FyVideoItem, FyFormalVideoItem):
-    pass
+class FyMovieItem(FyVideoItem):
+    director = Field()
+    actor = Field()
+    release_date = Field()
+    origin = Field()
+    description = Field()
 
-class FySeriesItem(FeiyingItem, FyFormalVideoItem):
+class FySeriesItem(FeiyingItem):
+    director = Field()
+    actor = Field()
+    release_date = Field()
+    origin = Field()
+    description = Field()
     episode_count = Field()
     episode_all = Field()
 
