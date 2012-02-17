@@ -14,13 +14,6 @@ class FeiyingItem(Item):
     image_url = Field()
     category = Field()
 
-class FyFormalVideoItem(Item):
-    director = Field()
-    actor = Field()
-    release_date = Field()
-    origin = Field()
-    description = Field()
-
 class FyVideoItem(FeiyingItem):
     time = Field()
     size = Field()
