@@ -16,7 +16,7 @@ class LetvSeriesSpider(CrawlSpider):
     name = 'letv_series'
     allowed_domains = ['m.letv.com']
 
-    source = 'letv_series'
+    source = 'letv'
     episode_list_url = 'http://m.letv.com/ajax/getPlist.php?act=plist&id='
 
     rules = (
@@ -52,8 +52,8 @@ class LetvSeriesSpider(CrawlSpider):
             l.add_xpath('release_date', 'dl[@class="vd1"]/dt[6]/text()', self._get_default,
                     re='...(.+)')
             l.add_xpath('description', 'dl[@class="vd4"][2]/dd/text()', MapCompose(unicode.strip,
-                self._get_default))
-            l.add_value('source_id', self.source+'_'+series_id)
+                    self._get_default))
+            l.add_value('source_id', self.name+'_'+series_id)
             l.add_value('source', self.source)
             l.add_value('episode_all', episode_all)
             l.add_value('category', '')
@@ -68,7 +68,7 @@ class LetvSeriesSpider(CrawlSpider):
             i += 1
             l = XPathItemLoader(FyEpisodeItem(), e)
             series_id = self._get_series_id(response.url)
-            l.add_value('source_id', self.source+'_'+series_id)
+            l.add_value('source_id', self.name+'_'+series_id)
             l.add_value('episode_index', i)
             l.add_xpath('image_url', 'dl[@class="dl01"]/dt/a/img/@src')
             l.add_xpath('video_url', 'dl[@class="dl01"]/dt/a/@href')

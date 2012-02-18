@@ -13,3 +13,5 @@ SPIDER_MODULES = ['feiying.spiders']
 NEWSPIDER_MODULE = 'feiying.spiders'
 USER_AGENT = '%s/%s' % (BOT_NAME, BOT_VERSION)
 
+ITEM_PIPELINES = ['feiying.pipelines.FeiyingPipeline']
+

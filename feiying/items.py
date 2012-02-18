@@ -3,6 +3,9 @@
 # See documentation in:
 # http://doc.scrapy.org/topics/items.html
 
+import time
+from scrapy import log
+from scrapy.exceptions import DropItem
 from scrapy.item import Item, Field
 
 class FeiyingItem(Item):
@@ -34,6 +37,83 @@ class FySeriesItem(FeiyingItem):
     description = Field()
     episode_count = Field()
     episode_all = Field()
+
+    def _func_list(self):
+        return [self._save_db]
+
+    def process(self, pipe, spider):
+        r = None
+        for f in self._func_list():
+            r = f(pipe, spider)
+            if isinstance(r, Item):
+                continue
+            else:
+                break
+        return r
+
+    def _save_db(self, pipe, spider):
+        status = self._check_db(pipe, spider)
+        if status == 0:
+            self._insert(pipe, spider)
+            return self
+        elif status == 2:
+            self._update(pipe, spider)
+            return self
+        else:
+            return DropItem('This item is already in database.')
+
+    def _check_db(self, pipe, spider):
+        sql = "SELECT id, episode_count, episode_all FROM fy_tv_series WHERE source_id = ?"
+        param = (self['source_id'][0],)
+        log.msg('source_id = %s' % self['source_id'][0])
+        r = None
+        with pipe.db_conn.cursor() as cursor:
+            cursor.execute(sql, param)
+            r = cursor.fetchone()
+
+        if None == r:
+            return 0 #this item is not found in db, just insert it into db.
+        elif r[2] == 1:
+            return 1 #this item is already in db and all episodes are crawled.
+        elif self['episode_all'][0] != r[2] and self['episode_count'][0] == r[1]:
+            return 2 #this item is already in db but it's status changed, need to be update.
+        else:
+            return 3 #this item is already in db but not all episodes are crawled.
+
+    def _insert(self, pipe, spider):
+        if self['episode_all'][0] == 0:
+            self['episode_count'][0] = 0
+
+        sql = """
+            INSERT INTO fy_tv_series (title, image_url, category, source, source_id,
+            created_time, director, actor, release_date, origin, description,
+            episode_count, episode_all) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"""
+        param = (
+            self['title'][0],
+            self['image_url'][0],
+            self['category'][0],
+            self['source'][0],
+            self['source_id'][0],
+            str(time.time()),
+            self['director'][0],
+            self['actor'][0],
+            self['release_date'][0],
+            self['origin'][0],
+            self['description'][0],
+            self['episode_count'][0],
+            self['episode_all'][0])
+
+        with pipe.db_conn.cursor() as cursor:
+            cursor.execute(sql, param)
+
+
+    def _update(self, pipe, spider):
+        sql = "UPDATE fy_tv_series SET episode_all=? WHERE source_id=?"
+        param = (self['episode_all'][0], self['source_id'][0])
+
+        with pipe.db_conn.cursor() as cursor:
+            cursor.execute(sql, param)
+               
 
 class FyEpisodeItem(Item):
     source_id = Field()
