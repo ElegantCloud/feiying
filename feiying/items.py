@@ -3,6 +3,7 @@
 # See documentation in:
 # http://doc.scrapy.org/topics/items.html
 
+import json
 import time
 from scrapy import log
 from scrapy.exceptions import DropItem
@@ -36,6 +37,54 @@ class FyVideoItem(FeiyingItem):
     time = Field()
     size = Field()
     video_url = Field()
+
+    def _func_list(self):
+        return [self._save_db, self._gearman]
+
+    def _gearman(self, pipe, spider):
+        job = pipe.gearman_client.submit_job('fy_download_and_index_video', json.dumps(dict(self)),
+                background = True, wait_until_complete = False)
+        pipe.gearman_client.wait_until_jobs_accepted([job])
+        return self
+
+    def _save_db(self, pipe, spider):
+        status = self._check_db(pipe, spider)
+        if status == 0:
+            self._insert(pipe, spider)
+            return self
+        else:
+            return DropItem('This video is already in database')
+
+    def _check_db(self, pipe, spider):
+        sql = "SELECT id FROM fy_video WHERE source_id=?"
+        param = (self['source_id'][0],)
+        r = None
+        with pipe.db_conn.cursor() as cursor:
+            cursor.execute(sql, param)
+            r = cursor.fetchone()
+
+        if r == None:
+            return 0 # this video is not in db
+        else:
+            return 1 # this video is already in db
+
+    def _insert(self, pipe, spider):
+        sql = """
+            INSERT INTO fy_video (title, time, size, image_url, video_url, category, source,
+            source_id, created_time) VALUES (?,?,?,?,?,?,?,?,?)"""
+        param = (
+            self['title'][0],
+            self['time'][0],
+            self['size'][0],
+            self['image_url'][0],
+            self['video_url'][0],
+            self['category'][0],
+            self['source'][0],
+            self['source_id'][0],
+            str(time.time()))
+
+        with pipe.db_conn.cursor() as cursor:
+            cursor.execute(sql, param)
 
 class FyMovieItem(FyVideoItem):
     director = Field()

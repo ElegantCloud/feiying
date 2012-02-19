@@ -5,6 +5,7 @@
 
 from scrapy.exceptions import DropItem
 from scrapy.item import Item
+import gearman
 import oursql
 
 class FeiyingPipeline(object):
@@ -16,6 +17,8 @@ class FeiyingPipeline(object):
             passwd = 'ivyinfo123',
             db = 'feiying'
             )
+
+        self.gearman_client = gearman.GearmanClient(['192.168.1.233:4730'])
 
     def process_item(self, item, spider):
         r = item.process(self, spider)
