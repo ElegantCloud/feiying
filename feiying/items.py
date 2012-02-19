@@ -32,7 +32,6 @@ class FeiyingItem(Item, ItemProcessor):
     image_url = Field()
     category = Field()
 
-
 class FyVideoItem(FeiyingItem):
     time = Field()
     size = Field()
@@ -44,6 +43,55 @@ class FyMovieItem(FyVideoItem):
     release_date = Field()
     origin = Field()
     description = Field()
+
+    def _func_list(self):
+        return [self._save_db]
+
+    def _save_db(self, pipe, spider):
+        status = self._check_db(pipe, spider)
+        if status == 0:
+            self._insert(pipe, spider)
+            return self
+        else:
+            return DropItem('This movie is already in database')
+
+    def _check_db(self, pipe, spider):
+        sql = "SELECT id FROM fy_movie WHERE source_id=?"
+        param = (self['source_id'][0],)
+        r = None
+        with pipe.db_conn.cursor() as cursor:
+            cursor.execute(sql, param)
+            r = cursor.fetchone()
+
+        if r == None:
+            return 0 # this movie is not in db
+        else:
+            return 1 # this movie is already in db
+    
+    def _insert(self, pipe, spider):
+        sql = """
+            INSERT INTO fy_movie (title, time, size, image_url, video_url, category,
+            source, source_id, created_time, director, actor, release_date, origin,
+            description) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"""
+        param = (
+            self['title'][0],
+            self['time'][0],
+            self['size'][0],
+            self['image_url'][0],
+            self['video_url'][0],
+            self['category'][0],
+            self['source'][0],
+            self['source_id'][0],
+            str(time.time()),
+            self['director'][0],
+            self['actor'][0],
+            self['release_date'][0],
+            self['origin'][0],
+            self['description'][0])
+
+        with pipe.db_conn.cursor() as cursor:
+            cursor.execute(sql, param)
+
 
 class FySeriesItem(FeiyingItem):
     director = Field()
@@ -166,5 +214,4 @@ class FyEpisodeItem(Item, ItemProcessor):
 
         with pipe.db_conn.cursor() as cursor:
             cursor.execute(sql, param)
-
 

@@ -14,7 +14,7 @@ class LetvMovieSpider(CrawlSpider):
     name = 'letv_movie'
     allowed_domains = ['m.letv.com']
 
-    source = 'letv_movie'
+    source = 'letv'
 
     rules = (
         Rule(
@@ -46,7 +46,7 @@ class LetvMovieSpider(CrawlSpider):
             l.add_xpath('release_date', 'dl[@class="vd1"]/dt[6]/text()', re='...(.+)')
             l.add_xpath('description', 'dl[@class="vd4"][2]/dd/text()', MapCompose(unicode.strip))
             l.add_value('size', 0)
-            l.add_value('source_id', response.url, MapCompose(lambda x:self.source+'_'+x),
+            l.add_value('source_id', response.url, MapCompose(lambda x:self.name+'_'+x),
                     re='id=(.+)&')
             l.add_value('source', self.source)
             l.add_value('category', '')
