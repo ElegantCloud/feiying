@@ -47,8 +47,8 @@ class TudouVideoSpider(CrawlSpider):
                     MapCompose(unicode.strip))
             l.add_xpath('time', 'div[5]/span/text()', re='\d{0,2}:?\d(2):\d{2}')
             l.add_xpath('image_url', 'div[@class="box1"]/div[@class="expdiv"]/a/img/@src')
-            l.add_xpath('video_url', 'div[7]/span/a/@href', MapCompose(lambda
-            x:'http://m.tudou.com/'+x))
+            l.add_xpath('video_url', 'div[7]/span/a/@href', 
+                    MapCompose(lambda x:'http://m.tudou.com/'+x))
             l.add_xpath('size', 'div[7]/span/a/span/text()', re='(?:\d*\.*\d*)(?:KB|MB)')
             l.add_xpath('source_id', 'div[7]/span/a/@href', MapCompose(lambda x:self.source+'_'+x),
                     re='code=(\d+)&')

@@ -10,6 +10,7 @@ from scrapy.contrib.loader import XPathItemLoader
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.loader.processor import MapCompose, Compose
 import urlparse
+import oursql
 from feiying.items import FySeriesItem, FyEpisodeItem
 
 class LetvSeriesSpider(CrawlSpider):
@@ -27,10 +28,35 @@ class LetvSeriesSpider(CrawlSpider):
         )
 
     def start_requests(self):
+#        yield Request('http://m.letv.com/play.php?type=2&id=50963',
+#                callback=self.parse_series_item)
+#        return
+
         base_url = "http://m.letv.com/video/v_list.php?cid=5&page="
         for p in range(1,2):
             url = base_url + str(p)
             yield Request(url)
+
+        ul = self._get_update_series()
+        for sid in ul:
+            yield Request('http://m.letv.com/play.php?type=2&id='+sid,
+                    callback=self.parse_series_item)
+
+    def _get_update_series(self):
+        sql = "SELECT source_id FROM fy_tv_series WHERE episode_all=0"
+        db = oursql.connect(
+            host = '192.168.1.233',
+            user = 'futuom',
+            passwd = 'ivyinfo123',
+            db = 'feiying'
+            )
+        rl = []
+        with db.cursor() as cursor:
+            cursor.execute(sql)
+            ls = cursor.fetchall()
+            for s in ls:
+                rl.append(s[0].strip('letv_series'))
+        return rl
 
     def parse_series_item(self, response):
         hxs = HtmlXPathSelector(response)
