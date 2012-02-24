@@ -42,7 +42,12 @@ class FyVideoItem(FeiyingItem):
         return [self._save_db, self._gearman]
 
     def _gearman(self, pipe, spider):
-        job = pipe.gearman_client.submit_job('fy_download_and_index_video', json.dumps(dict(self)),
+        data = {
+                'source_id':self['source_id'][0],
+                'title':self['title'][0],
+                'video_url':self['video_url'][0]
+            }
+        job = pipe.gearman_client.submit_job('fy_video_download', json.dumps(data)),
                 background = True, wait_until_complete = False)
         pipe.gearman_client.wait_until_jobs_accepted([job])
         return self
