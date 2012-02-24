@@ -47,7 +47,7 @@ class FyVideoItem(FeiyingItem):
                 'title':self['title'][0],
                 'video_url':self['video_url'][0]
             }
-        job = pipe.gearman_client.submit_job('fy_video_download', json.dumps(data)),
+        job = pipe.gearman_client.submit_job('fy_video_download', json.dumps(data),
                 background = True, wait_until_complete = False)
         pipe.gearman_client.wait_until_jobs_accepted([job])
         return self
