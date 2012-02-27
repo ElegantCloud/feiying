@@ -4,7 +4,6 @@
 # http://doc.scrapy.org/topics/items.html
 
 import json
-import time
 from scrapy import log
 from scrapy.exceptions import DropItem
 from scrapy.item import Item, Field
