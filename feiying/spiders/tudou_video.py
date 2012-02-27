@@ -52,7 +52,6 @@ class TudouVideoSpider(CrawlSpider):
             l.add_xpath('size', 'div[7]/span/a/span/text()', re='(?:\d*\.*\d*)(?:KB|MB)')
             l.add_xpath('source_id', 'div[7]/span/a/@href', MapCompose(lambda x:self.source+'_'+x),
                     re='code=(\d+)&')
-            l.add_value('source', self.source)
             l.add_value('category', response.url, MapCompose(lambda x : self.category_map[x]),
                     re='channelId=(\d+)')
             yield l.load_item()

@@ -51,7 +51,6 @@ class YoukuVideoSpider(CrawlSpider):
                 re='(?:[\d,\.]+)(?:M|K)')
             l.add_xpath('source_id', 'div[@class="playlink"][1]/a[2]/@href', MapCompose(lambda x:
                 self.source + '_' +x), re='id=(.+)&')
-            l.add_value('source', self.source)
             l.add_value('category', response.url, MapCompose(lambda x : self.category_map[x]),
                 re='cid=(\d{2})')
             yield l.load_item()

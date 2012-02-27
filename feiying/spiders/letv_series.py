@@ -17,7 +17,6 @@ class LetvSeriesSpider(CrawlSpider):
     name = 'letv_series'
     allowed_domains = ['m.letv.com']
 
-    source = 'letv'
     episode_list_url = 'http://m.letv.com/ajax/getPlist.php?act=plist&id='
 
     rules = (
@@ -80,11 +79,10 @@ class LetvSeriesSpider(CrawlSpider):
             l.add_xpath('description', 'dl[@class="vd4"][2]/dd/text()', MapCompose(unicode.strip,
                     self._get_default))
             l.add_value('source_id', self.name+'_'+series_id)
-            l.add_value('source', self.source)
             l.add_value('episode_all', episode_all)
-            l.add_value('category', '')
+            l.add_value('category', 'series')
             yield l.load_item()
-            yield Request(self.episode_list_url + series_id, callback=self.parse_episode_list)
+#            yield Request(self.episode_list_url + series_id, callback=self.parse_episode_list)
 
     def parse_episode_list(self, response):
         hxs = HtmlXPathSelector(response)

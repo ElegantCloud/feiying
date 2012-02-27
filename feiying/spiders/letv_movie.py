@@ -14,8 +14,6 @@ class LetvMovieSpider(CrawlSpider):
     name = 'letv_movie'
     allowed_domains = ['m.letv.com']
 
-    source = 'letv'
-
     rules = (
         Rule(
                 SgmlLinkExtractor(restrict_xpaths='//div[@class="iphone"]/div[@class="ph"]/div[@class="detail"]/dl[@class="dl02"]/dd'),
@@ -48,7 +46,6 @@ class LetvMovieSpider(CrawlSpider):
             l.add_value('size', 0)
             l.add_value('source_id', response.url, MapCompose(lambda x:self.name+'_'+x),
                     re='id=(.+)&')
-            l.add_value('source', self.source)
-            l.add_value('category', '')
+            l.add_value('category', 'movie')
             yield l.load_item()
 

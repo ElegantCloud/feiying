@@ -15,17 +15,18 @@ class FeiyingPipeline(object):
             host = '192.168.1.233',
             user = 'futuom',
             passwd = 'ivyinfo123',
-            db = 'feiying'
+            db = 'feiying_new'
             )
 
         self.gearman_client = gearman.GearmanClient(['192.168.1.233:4730'])
 
     def process_item(self, item, spider):
-        r = item.process(self, spider)
-        if isinstance(r, Item):
-            return r
-        elif isinstance(r, DropItem):
-            raise r
+        try:
+            r = item.process(self, spider)
+            if not isinstance(r, Item):
+                raise DropItem(r)
+        except oursql.Error as e:
+            raise DropItem(e)
         else:
-            raise DropItem('Unknown error')
+            return r
 
