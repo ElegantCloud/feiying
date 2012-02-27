@@ -27,7 +27,7 @@ class LetvSeriesSpider(CrawlSpider):
         )
 
     def start_requests(self):
-#        yield Request('http://m.letv.com/play.php?type=2&id=27944',
+#        yield Request('http://m.letv.com/play.php?type=2&id=72457',
 #                callback=self.parse_series_item)
 #        return
 
