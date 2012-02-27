@@ -1,3 +1,4 @@
+# coding=utf8
 # Define here the models for your scraped items
 #
 # See documentation in:
@@ -128,7 +129,14 @@ class FySeriesItem(FeiyingItem):
     episode_list = Field()
 
     def _func_list(self):
-        return [self._save_db]
+        return [self._check_words, self._save_db]
+
+    def _check_words(self, pipe, spider):
+        invalid_word_list = [u'乐视制造']
+        if self['actor'][0] in invalid_word_list or self['director'][0] in invalid_word_list:
+            return 'Invalid Word'
+        else:
+            return self
 
     def _save_db(self, pipe, spider):
         status = self._check_db(pipe, spider)
@@ -202,7 +210,8 @@ class FySeriesItem(FeiyingItem):
             cursor.execute('SET AUTOCOMMIT=0')
             cursor.execute(fy_video_sql, fy_video_param)
             cursor.execute(fy_series_sql, fy_series_param)
-            cursor.executemany(fy_episode_sql, fy_episode_param)
+            if fy_episode_param != None:
+                cursor.executemany(fy_episode_sql, fy_episode_param)
 
         return self
 
