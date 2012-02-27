@@ -27,7 +27,7 @@ class LetvSeriesSpider(CrawlSpider):
         )
 
     def start_requests(self):
-#        yield Request('http://m.letv.com/play.php?type=2&id=50963',
+#        yield Request('http://m.letv.com/play.php?type=2&id=27944',
 #                callback=self.parse_series_item)
 #        return
 
@@ -81,10 +81,14 @@ class LetvSeriesSpider(CrawlSpider):
             l.add_value('source_id', self.name+'_'+series_id)
             l.add_value('episode_all', episode_all)
             l.add_value('category', 'series')
-            yield l.load_item()
-#            yield Request(self.episode_list_url + series_id, callback=self.parse_episode_list)
+            series = l.load_item()
+            request = Request(self.episode_list_url + series_id, callback=self.parse_episode_list)
+            request.meta['series'] = series
+            yield request
 
     def parse_episode_list(self, response):
+        series = response.meta['series']
+        series['episode_list'] = []
         hxs = HtmlXPathSelector(response)
         episodes = hxs.select('//div[@class="detail"]')
         i = 0
@@ -98,8 +102,10 @@ class LetvSeriesSpider(CrawlSpider):
             l.add_xpath('video_url', 'dl[@class="dl01"]/dt/a/@href')
             l.add_xpath('time', 'dl[@class="dl01"]/dd/p/span/text()', re='...(\d+)')
             l.add_value('size', 0)
-            yield l.load_item()
-            
+            item = l.load_item()
+            series['episode_list'].append(item)
+        yield series
+
     def _get_series_id(self, url):
         p =urlparse.urlparse(url)
         qs = urlparse.parse_qs(p.query)

@@ -24,18 +24,6 @@ class ItemProcessor:
                 break
         return r
 
-    def _save_base_info(self, pipe, spider):
-        sql = """
-            INSERT INTO fy_video (source_id, title, image_url, category) VALUES (?,?,?,?)"""
-        param = (
-            self['source_id'][0],
-            self['title'][0],
-            self['image_url'][0],
-            self['category'][0])
-
-        with pipe.db_conn.cursor() as cursor:
-            cursor.execute(sql, param)
-
 
 class FeiyingItem(Item, ItemProcessor):
     # define the fields for your item here like:
@@ -51,7 +39,8 @@ class FyVideoItem(FeiyingItem):
     video_url = Field()
 
     def _func_list(self):
-        return [self._save_db, self._gearman]
+        #return [self._save_db, self._gearman]
+        return [self._save_db]
 
     def _gearman(self, pipe, spider):
         data = {
@@ -65,18 +54,26 @@ class FyVideoItem(FeiyingItem):
         return self
 
     def _save_db(self, pipe, spider):
-        self._save_base_info(pipe, spider)
+        fy_video_sql = """
+            INSERT INTO fy_video (source_id, title, image_url, category) VALUES (?,?,?,?)"""
+        fy_video_param = (
+            self['source_id'][0],
+            self['title'][0],
+            self['image_url'][0],
+            self['category'][0])
 
-        sql = """
+        fy_short_video_sql = """
             INSERT INTO fy_short_video (source_id, time, size, video_url) VALUES (?,?,?,?)"""
-        param = (
+        fy_short_video_param = (
             self['source_id'][0],
             self['time'][0],
             self['size'][0],
             self['video_url'][0])
 
         with pipe.db_conn.cursor() as cursor:
-            cursor.execute(sql, param)
+            cursor.execute('SET AUTOCOMMIT=0')
+            cursor.execute(fy_video_sql, fy_video_param)
+            cursor.execute(fy_short_video_sql, fy_short_video_param)
 
         return self
 
@@ -92,12 +89,18 @@ class FyMovieItem(FyVideoItem):
         return [self._save_db]
 
     def _save_db(self, pipe, spider):
-        self._save_base_info(pipe, spider)
+        fy_video_sql = """
+            INSERT INTO fy_video (source_id, title, image_url, category) VALUES (?,?,?,?)"""
+        fy_video_param = (
+            self['source_id'][0],
+            self['title'][0],
+            self['image_url'][0],
+            self['category'][0])
 
-        sql = """
+        fy_movie_sql = """
             INSERT INTO fy_movie (source_id, time, size, video_url, director, 
             actor, release_date, origin, description) VALUES (?,?,?,?,?,?,?,?,?)"""
-        param = (
+        fy_movie_param = (
             self['source_id'][0],
             self['time'][0],
             self['size'][0],
@@ -109,7 +112,9 @@ class FyMovieItem(FyVideoItem):
             self['description'][0])
 
         with pipe.db_conn.cursor() as cursor:
-            cursor.execute(sql, param)
+            cursor.execute('SET AUTOCOMMIT=0')
+            cursor.execute(fy_video_sql, fy_video_param)
+            cursor.execute(fy_movie_sql, fy_movie_param)
 
         return self
 
@@ -121,6 +126,7 @@ class FySeriesItem(FeiyingItem):
     description = Field()
     episode_count = Field()
     episode_all = Field()
+    episode_list = Field()
 
     def _func_list(self):
         return [self._save_db]
@@ -154,15 +160,20 @@ class FySeriesItem(FeiyingItem):
             return 3 #this item is already in db but not all episodes are crawled.
 
     def _insert(self, pipe, spider):
-        self._save_base_info(pipe, spider)
+        fy_video_sql = """
+            INSERT INTO fy_video (source_id, title, image_url, category) VALUES (?,?,?,?)"""
+        fy_video_param = (
+            self['source_id'][0],
+            self['title'][0],
+            self['image_url'][0],
+            self['category'][0])
 
         if self['episode_all'][0] == 0:
             self['episode_count'][0] = 0
-
-        sql = """
+        fy_series_sql = """
             INSERT INTO fy_tv_series (source_id, director, actor, release_date, origin, description,
             episode_count, episode_all) VALUES (?,?,?,?,?,?,?,?)"""
-        param = (
+        fy_series_param = (
             self['source_id'][0],
             self['director'][0],
             self['actor'][0],
@@ -172,8 +183,29 @@ class FySeriesItem(FeiyingItem):
             self['episode_count'][0],
             self['episode_all'][0])
 
+        fy_episode_sql = """
+            INSERT INTO fy_tv_episode (source_id, time, size, episode_index, image_url,
+            video_url) VALUES (?,?,?,?,?,?)"""
+        fy_episode_param = None
+        for e in self['episode_list']:
+            p = ((e['source_id'][0],
+                 e['time'][0],
+                 e['size'][0],
+                 e['episode_index'][0],
+                 e['image_url'][0],
+                 e['video_url'][0]),)
+            if fy_episode_param == None:
+                fy_episode_param = p
+            else:
+                fy_episode_param += p   
+
         with pipe.db_conn.cursor() as cursor:
-            cursor.execute(sql, param)
+            cursor.execute('SET AUTOCOMMIT=0')
+            cursor.execute(fy_video_sql, fy_video_param)
+            cursor.execute(fy_series_sql, fy_series_param)
+            cursor.executemany(fy_episode_sql, fy_episode_param)
+
+        return self
 
 
     def _update(self, pipe, spider):
@@ -192,22 +224,3 @@ class FyEpisodeItem(Item, ItemProcessor):
     size = Field()
     time = Field()
 
-    def _func_list(self):
-        return [self._save_db]
-
-    def _save_db(self, pipe, spider):
-        sql = """
-            INSERT INTO fy_tv_episode (time, size, source_id, episode_index, image_url,
-            video_url) VALUES (?,?,?,?,?,?)"""
-        param = (
-            self['time'][0],
-            self['size'][0],
-            self['source_id'][0],
-            self['episode_index'][0],
-            self['image_url'][0],
-            self['video_url'][0])
-
-        with pipe.db_conn.cursor() as cursor:
-            cursor.execute(sql, param)
-
-        return self
