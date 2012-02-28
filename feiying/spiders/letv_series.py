@@ -47,7 +47,7 @@ class LetvSeriesSpider(CrawlSpider):
             host = '192.168.1.233',
             user = 'futuom',
             passwd = 'ivyinfo123',
-            db = 'feiying'
+            db = 'feiying_new'
             )
         rl = []
         with db.cursor() as cursor:
