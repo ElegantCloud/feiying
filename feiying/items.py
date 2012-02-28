@@ -31,7 +31,7 @@ class FeiyingItem(Item, ItemProcessor):
     title = Field()
     source_id = Field()
     image_url = Field()
-    category = Field()
+    channel = Field()
 
 class FyVideoItem(FeiyingItem):
     time = Field()
@@ -55,12 +55,12 @@ class FyVideoItem(FeiyingItem):
 
     def _save_db(self, pipe, spider):
         fy_video_sql = """
-            INSERT INTO fy_video (source_id, title, image_url, category) VALUES (?,?,?,?)"""
+            INSERT INTO fy_video (source_id, title, image_url, channel) VALUES (?,?,?,?)"""
         fy_video_param = (
             self['source_id'][0],
             self['title'][0],
             self['image_url'][0],
-            self['category'][0])
+            self['channel'][0])
 
         fy_short_video_sql = """
             INSERT INTO fy_short_video (source_id, time, size, video_url) VALUES (?,?,?,?)"""
@@ -90,12 +90,12 @@ class FyMovieItem(FyVideoItem):
 
     def _save_db(self, pipe, spider):
         fy_video_sql = """
-            INSERT INTO fy_video (source_id, title, image_url, category) VALUES (?,?,?,?)"""
+            INSERT INTO fy_video (source_id, title, image_url, channel) VALUES (?,?,?,?)"""
         fy_video_param = (
             self['source_id'][0],
             self['title'][0],
             self['image_url'][0],
-            self['category'][0])
+            self['channel'][0])
 
         fy_movie_sql = """
             INSERT INTO fy_movie (source_id, time, size, video_url, director, 
@@ -168,12 +168,12 @@ class FySeriesItem(FeiyingItem):
 
     def _insert(self, pipe, spider):
         fy_video_sql = """
-            INSERT INTO fy_video (source_id, title, image_url, category) VALUES (?,?,?,?)"""
+            INSERT INTO fy_video (source_id, title, image_url, channel) VALUES (?,?,?,?)"""
         fy_video_param = (
             self['source_id'][0],
             self['title'][0],
             self['image_url'][0],
-            self['category'][0])
+            self['channel'][0])
 
         if self['episode_all'][0] == 0:
             self['episode_count'][0] = 0

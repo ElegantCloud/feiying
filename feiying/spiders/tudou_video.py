@@ -15,14 +15,14 @@ class TudouVideoSpider(CrawlSpider):
     allowed_domains = ['m.tudou.com']
 
     source = 'tudou'
-    category_map = {
-        '29':'zixun',
-        '14':'yinyue',
-        '1':'yule',
-        '15':'tiyu',
-        '26':'shishang',
-        '5':'gaoxiao',
-        '31':'zongyi'
+    channel_map = {
+        '29':3, #news
+        '14':5, #music
+        '1':8, #entertainment'yule',
+        '15':6, #sports'tiyu',
+        '26':7, #fashion'shishang',
+        '5':4, #fun'gaoxiao',
+        '31':9 #variety'zongyi'
         }
 
     rules = (
@@ -34,7 +34,7 @@ class TudouVideoSpider(CrawlSpider):
 
     def start_requests(self):
         base_url = "http://m.tudou.com/category.do?v=3&cp=&method=channelindex&pageId=1&channelId="
-        for cid in self.category_map.keys():
+        for cid in self.channel_map.keys():
             url = base_url + cid
             yield Request(url)
 
@@ -52,7 +52,7 @@ class TudouVideoSpider(CrawlSpider):
             l.add_xpath('size', 'div[7]/span/a/span/text()', re='(?:\d*\.*\d*)(?:KB|MB)')
             l.add_xpath('source_id', 'div[7]/span/a/@href', MapCompose(lambda x:self.source+'_'+x),
                     re='code=(\d+)&')
-            l.add_value('category', response.url, MapCompose(lambda x : self.category_map[x]),
+            l.add_value('channel', response.url, MapCompose(lambda x : self.channel_map[x]),
                     re='channelId=(\d+)')
             yield l.load_item()
 

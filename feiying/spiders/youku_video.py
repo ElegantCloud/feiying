@@ -15,13 +15,13 @@ class YoukuVideoSpider(CrawlSpider):
     allowd_domains = ['3g.youku.com']
 
     source = 'youku'
-    category_map = {
-        '91':'zixun',
-        '95':'yinyue',
-        '86':'yule',
-        '98':'tiyu',
-        '89':'shishang',
-        '94':'gaoxiao'
+    channel_map = {
+        '91':3, #news
+        '95':5, #music
+        '86':8, #entertainment
+        '98':6, #sports
+        '89':7, #fashion
+        '94':4 #fun
         }
 
     rules = ( 
@@ -33,7 +33,7 @@ class YoukuVideoSpider(CrawlSpider):
 
     def start_requests(self):
         base_url = "http://3g.youku.com/wap2/channeldetail.jsp?ob=1&pg=1&cid="
-        for cid in self.category_map.keys():
+        for cid in self.channel_map.keys():
             url = base_url + cid
             yield Request(url)
 
@@ -51,7 +51,7 @@ class YoukuVideoSpider(CrawlSpider):
                 re='(?:[\d,\.]+)(?:M|K)')
             l.add_xpath('source_id', 'div[@class="playlink"][1]/a[2]/@href', MapCompose(lambda x:
                 self.source + '_' +x), re='id=(.+)&')
-            l.add_value('category', response.url, MapCompose(lambda x : self.category_map[x]),
+            l.add_value('channel', response.url, MapCompose(lambda x : self.channel_map[x]),
                 re='cid=(\d{2})')
             yield l.load_item()
 

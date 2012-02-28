@@ -80,7 +80,7 @@ class LetvSeriesSpider(CrawlSpider):
                     self._get_default))
             l.add_value('source_id', self.name+'_'+series_id)
             l.add_value('episode_all', episode_all)
-            l.add_value('category', 'series')
+            l.add_value('channel', 2)
             series = l.load_item()
             request = Request(self.episode_list_url + series_id, callback=self.parse_episode_list)
             request.meta['series'] = series
@@ -118,4 +118,9 @@ class LetvSeriesSpider(CrawlSpider):
         return 1
 
     def _get_default(self, value):
+        if isinstance(value, str):
+            return value[0:512]
+        if isinstance(value, unicode):
+            return value[0:512]
+
         return value if value else 0
