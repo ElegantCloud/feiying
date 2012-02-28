@@ -43,7 +43,7 @@ class LetvMovieSpider(CrawlSpider):
             l.add_xpath('origin', 'dl[@class="vd1"]/dt[4]/text()', re='...(.+)')
             l.add_xpath('release_date', 'dl[@class="vd1"]/dt[6]/text()', re='...(.+)')
             l.add_xpath('description', 'dl[@class="vd4"][2]/dd/text()', MapCompose(unicode.strip,
-                lambda x : x[0:512] if x else '')
+                lambda x : x[0:512] if x else ''))
             l.add_value('size', 0)
             l.add_value('source_id', response.url, MapCompose(lambda x:self.name+'_'+x),
                     re='id=(.+)&')

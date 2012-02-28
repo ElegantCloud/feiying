@@ -146,6 +146,9 @@ class FySeriesItem(FeiyingItem):
         elif status == 2:
             self._update(pipe, spider)
             return self
+        elif status == 3:
+            self._insert_new_episode(pipe, spider)
+            return self
         else:
             return 'This item is already in database.'
 
@@ -213,9 +216,6 @@ class FySeriesItem(FeiyingItem):
             if fy_episode_param != None:
                 cursor.executemany(fy_episode_sql, fy_episode_param)
 
-        return self
-
-
     def _update(self, pipe, spider):
         sql = "UPDATE fy_tv_series SET episode_all=? WHERE source_id=?"
         param = (self['episode_all'][0], self['source_id'][0])
@@ -223,6 +223,35 @@ class FySeriesItem(FeiyingItem):
         with pipe.db_conn.cursor() as cursor:
             cursor.execute(sql, param)
                
+    def _insert_new_episode(self, pipe, spider):
+        select_sql = """
+            SELECT episode_index FROM fy_tv_episode WHERE source_id=?"""
+        select_param = (self['source_id'][0],)
+        r = None
+        with pipe.db_conn.cursor() as cursor:
+            cursor.execute(select_sql, select_param)
+            r = cursor.fetchall()
+
+        if r == None:
+            return
+        else:
+            cl = map(lambda x : x[0], r)
+            fy_episode_sql = """
+                INSERT INTO fy_tv_episode (source_id, time, size, episode_index, image_url,
+                video_url) VALUES (?,?,?,?,?,?)"""
+            for e in self['episode_list']:
+                i = e['episode_index'][0]
+                if not i in cl:
+                    fy_episode_param = (
+                        e['source_id'][0],
+                        e['time'][0],
+                        e['size'][0],
+                        e['episode_index'][0],
+                        e['image_url'][0],
+                        e['video_url'][0],)
+                    with pipe.db_conn.cursor() as cursor:
+                        cursor.execute(fy_episode_sql, fy_episode_param)
+
 
 class FyEpisodeItem(Item, ItemProcessor):
     source_id = Field()
