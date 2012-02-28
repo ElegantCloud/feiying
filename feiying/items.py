@@ -39,14 +39,17 @@ class FyVideoItem(FeiyingItem):
     video_url = Field()
 
     def _func_list(self):
-        #return [self._save_db, self._gearman]
-        return [self._save_db]
+        return [self._save_db, self._gearman]
+        #return [self._save_db]
 
     def _gearman(self, pipe, spider):
         data = {
                 'source_id':self['source_id'][0],
                 'title':self['title'][0],
-                'video_url':self['video_url'][0]
+                'video_url':self['video_url'][0],
+                'image_url':self['image_url'][0],
+                'time':self['time'][0],
+                'size':self['size'][0]
             }
         job = pipe.gearman_client.submit_job('fy_video_download', json.dumps(data),
                 background = True, wait_until_complete = False)
