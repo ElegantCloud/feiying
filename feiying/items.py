@@ -49,7 +49,8 @@ class FyVideoItem(FeiyingItem):
                 'video_url':self['video_url'][0],
                 'image_url':self['image_url'][0],
                 'time':self['time'][0],
-                'size':self['size'][0]
+                'size':self['size'][0],
+                'channel':self['channel'][0]
             }
         job = pipe.gearman_client.submit_job('fy_video_download', json.dumps(data),
                 background = True, wait_until_complete = False)
