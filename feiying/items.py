@@ -182,8 +182,8 @@ class FySeriesItem(FeiyingItem):
             self['image_url'][0],
             self['channel'][0])
 
-        if self['episode_all'][0] == 0:
-            self['episode_count'][0] = 0
+#        if self['episode_all'][0] == 0:
+#            self['episode_count'][0] = 0
         fy_series_sql = """
             INSERT INTO fy_tv_series (source_id, director, actor, release_date, origin, description,
             episode_count, episode_all) VALUES (?,?,?,?,?,?,?,?)"""
