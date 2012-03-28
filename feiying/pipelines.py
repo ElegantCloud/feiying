@@ -12,13 +12,13 @@ class FeiyingPipeline(object):
 
     def __init__(self):
         self.db_conn = oursql.connect(
-            host = '192.168.1.233',
-            user = 'futuom',
-            passwd = 'ivyinfo123',
-            db = 'feiying_new'
+            host = 'mysql-server',
+            user = 'feiying',
+            passwd = 'feiying123',
+            db = 'feiying'
             )
 
-        self.gearman_client = gearman.GearmanClient(['192.168.1.233:4730'])
+        self.gearman_client = gearman.GearmanClient(['gearman-server-1', 'gearman-server-2'])
 
     def process_item(self, item, spider):
         try:
