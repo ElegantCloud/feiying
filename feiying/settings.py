@@ -15,5 +15,5 @@ USER_AGENT = '%s/%s' % (BOT_NAME, BOT_VERSION)
 
 ITEM_PIPELINES = ['feiying.pipelines.FeiyingPipeline']
 
-DOWNLOAD_DELAY = 40
+DOWNLOAD_DELAY = 20
 
