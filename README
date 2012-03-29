@@ -19,8 +19,10 @@ Setup
 5) run 'source bin/activate' to setup the python env.  
 
 6) use 'pip install scrapy' to install scrapy. depended packages such twisted and w3lib will be install automatically.
+   # Sometimes you may have to install libxml2-dev and libxslt-dev by aptitude when encountering errors.
 
 7) run 'scrapy startproject feiying' to create a new scrapy project.
 
 8) 'cd feiying' and then 'git clone git@github.com:huuguanghui/feiying.git' 
 
+9) run 'scrapy server' to schedule the crawlling task. For test, you can run 'scrapy crawl youku_video', it will crawl once. 
