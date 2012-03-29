@@ -26,3 +26,5 @@ Setup
 8) 'cd feiying' and then 'git clone git@github.com:huuguanghui/feiying.git' 
 
 9) run 'scrapy server' to schedule the crawlling task. For test, you can run 'scrapy crawl youku_video', it will crawl once. 
+
+
