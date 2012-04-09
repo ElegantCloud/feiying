@@ -44,10 +44,10 @@ class LetvSeriesSpider(CrawlSpider):
     def _get_update_series(self):
         sql = "SELECT source_id FROM fy_tv_series WHERE episode_all=0"
         db = oursql.connect(
-            host = '192.168.1.233',
-            user = 'futuom',
-            passwd = 'ivyinfo123',
-            db = 'feiying_new'
+            host = 'mysql-server',
+            user = 'feiying',
+            passwd = 'feiying123',
+            db = 'feiying'
             )
         rl = []
         with db.cursor() as cursor:
