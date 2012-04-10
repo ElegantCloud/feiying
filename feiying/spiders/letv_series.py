@@ -119,8 +119,8 @@ class LetvSeriesSpider(CrawlSpider):
 
     def _get_default(self, value):
         if isinstance(value, str):
-            return value[0:512]
+            return value[0:512].strip()
         if isinstance(value, unicode):
-            return value[0:512]
+            return value[0:512].strip()
 
         return value if value else 0
