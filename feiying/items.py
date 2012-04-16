@@ -33,14 +33,19 @@ class FeiyingItem(Item, ItemProcessor):
     image_url = Field()
     channel = Field()
 
+    def _check_attribute(self, pipe, spider):
+        if len(self['video_url'][0])==0 or len(self['image_url'][0])==0 or len(self['source_id'][0])==0 or len(self['title'][0])==0:
+               return 'Invalid Attribute!'
+        else:
+            return self
+
 class FyVideoItem(FeiyingItem):
     time = Field()
     size = Field()
     video_url = Field()
 
     def _func_list(self):
-        return [self._save_db, self._gearman]
-        #return [self._save_db]
+        return [self._check_attribute, self._save_db, self._gearman]
 
     def _gearman(self, pipe, spider):
         data = {
@@ -90,7 +95,7 @@ class FyMovieItem(FyVideoItem):
     description = Field()
 
     def _func_list(self):
-        return [self._save_db]
+        return [self._check_attribute, self._save_db]
 
     def _save_db(self, pipe, spider):
         fy_video_sql = """
