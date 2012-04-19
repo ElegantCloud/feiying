@@ -114,7 +114,14 @@ class FyMovieItem(FyVideoItem):
     description = Field()
 
     def _func_list(self):
-        return [self._check_attribute, self._check_video_url, self._save_db]
+        return [self._check_attribute, self._check_video_url, self._check_yueyu, self._save_db]
+
+    def _check_yueyu(self, pipe, spider):
+        yueyu = u'粤语'
+        if self['title'][0].rfind(yueyu)>=0:
+            return 'Yueyu movie'
+        else:
+            return self
 
     def _save_db(self, pipe, spider):
         fy_video_sql = """
