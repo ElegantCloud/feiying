@@ -34,10 +34,23 @@ class FeiyingItem(Item, ItemProcessor):
     channel = Field()
 
     def _check_attribute(self, pipe, spider):
-        if len(self['video_url'][0])==0 or len(self['image_url'][0])==0 or len(self['source_id'][0])==0 or len(self['title'][0])==0:
+        if len(self['image_url'][0])==0 or len(self['source_id'][0])==0 or len(self['title'][0])==0:
                return 'Invalid Attribute!'
         else:
             return self
+
+    def _check_duplicated(self, pipe, spider):
+        sql = "SELECT image_url, source_id FROM fy_video WHERE image_url = ?"
+        param = (self['image_url'][0],)
+        r = None
+        with pipe.db_conn.cursor() as cursor:
+            cursor.execute(sql, param)
+            r = cursor.fetchone()
+
+        if None == r:
+            return self
+        else:
+            return 'Find item with duplicated image_url'
 
 class FyVideoItem(FeiyingItem):
     time = Field()
@@ -45,7 +58,13 @@ class FyVideoItem(FeiyingItem):
     video_url = Field()
 
     def _func_list(self):
-        return [self._check_attribute, self._save_db, self._gearman]
+        return [self._check_attribute, self._check_video_url, self._check_duplicated, self._save_db, self._gearman]
+
+    def _check_video_url(self, pipe, spider):
+	if len(self['video_url'][0]) == 0:
+	    return 'Invalid Attribute: video_url'
+        else:
+	    return self
 
     def _gearman(self, pipe, spider):
         data = {
@@ -95,7 +114,7 @@ class FyMovieItem(FyVideoItem):
     description = Field()
 
     def _func_list(self):
-        return [self._check_attribute, self._save_db]
+        return [self._check_attribute, self._check_video_url, self._save_db]
 
     def _save_db(self, pipe, spider):
         fy_video_sql = """
@@ -138,7 +157,7 @@ class FySeriesItem(FeiyingItem):
     episode_list = Field()
 
     def _func_list(self):
-        return [self._check_words, self._save_db]
+        return [self._check_attribute, self._check_words, self._save_db]
 
     def _check_words(self, pipe, spider):
         invalid_word_list = [u'乐视制造']
