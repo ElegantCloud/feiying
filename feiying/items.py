@@ -58,13 +58,25 @@ class FyVideoItem(FeiyingItem):
     video_url = Field()
 
     def _func_list(self):
-        return [self._check_attribute, self._check_video_url, self._check_duplicated, self._save_db, self._gearman]
+        return [self._check_attribute, 
+                self._check_video_url, 
+                self._check_words, 
+                self._check_duplicated, 
+                self._save_db, 
+                self._gearman]
 
     def _check_video_url(self, pipe, spider):
 	if len(self['video_url'][0]) == 0:
 	    return 'Invalid Attribute: video_url'
         else:
 	    return self
+
+    def _check_words(self, pipe, spider):
+        invalid_words = [u'文凭', u'身份证', u'发票', u'發票']
+        for w in invalid_words:
+            if self['title'][0].rfind(w)>=0:
+                return 'Invalid word in title: %s' % w
+        return self
 
     def _gearman(self, pipe, spider):
         data = {
