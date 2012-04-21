@@ -72,7 +72,7 @@ class FyVideoItem(FeiyingItem):
 	    return self
 
     def _check_words(self, pipe, spider):
-        invalid_words = [u'文凭', u'身份证', u'发票', u'發票', u'办假', u'办理']
+        invalid_words = [u'文凭', u'身份证', u'发票', u'發票', u'办假', u'办理', u'自慰', u'成人视频']
         for w in invalid_words:
             if self['title'][0].rfind(w)>=0:
                 return 'Invalid word in title: %s' % w
