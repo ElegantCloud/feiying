@@ -211,7 +211,7 @@ class FySeriesItem(FeiyingItem):
             return 0 #this item is not found in db, just insert it into db.
         elif r[1] == 1:
             return 1 #this item is already in db and all episodes are crawled.
-        elif self['episode_all'][0] != r[1] and self['episode_count'][0] == r[0]:
+        elif self['episode_all'][0] != r[1] and int(self['episode_count'][0]) <= r[0]:
             return 2 #this item is already in db but it's status changed, need to be update.
         else:
             return 3 #this item is already in db but not all episodes are crawled.
