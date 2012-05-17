@@ -35,7 +35,7 @@ class FeiyingItem(Item, ItemProcessor):
 
     def _check_attribute(self, pipe, spider):
         if len(self['image_url'][0])==0 or len(self['source_id'][0])==0 or len(self['title'][0])==0:
-               return 'Invalid Attribute!'
+            return 'Invalid Attribute!'
         else:
             return self
 
@@ -61,6 +61,7 @@ class FyVideoItem(FeiyingItem):
         return [self._check_attribute, 
                 self._check_video_url, 
                 self._check_words, 
+                self._check_size,
                 self._check_duplicated, 
                 self._save_db, 
                 self._gearman]
@@ -76,6 +77,13 @@ class FyVideoItem(FeiyingItem):
         for w in invalid_words:
             if self['title'][0].rfind(w)>=0:
                 return 'Invalid word in title: %s' % w
+        return self
+
+    def _check_size(self, pipe, spider):
+        invalid_size = [u'0K', u'0M', u'0k', u'0m', u'0', u'0KB', u'0MB']
+        for s in invalid_size:
+            if self['size'][0] == s:
+                return 'Invalid size: %s' % s
         return self
 
     def _gearman(self, pipe, spider):
